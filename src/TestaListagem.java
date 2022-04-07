@@ -19,6 +19,7 @@ public class TestaListagem {
 			System.out.println("ID = " + id + ", Nome = " + nome + ", descrição = " + descricao);
 		}
 		
+		st.close();
 		ConnectionFactory.fecharConexao(con);
 	}
 

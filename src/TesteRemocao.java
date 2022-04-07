@@ -12,6 +12,9 @@ public class TesteRemocao {
 		st.execute();
 		
 		System.out.println("quantidade de linhas removidas: " + st.getUpdateCount());
+		
+		st.close();
+		ConnectionFactory.fecharConexao(con);
 	}
 
 }
