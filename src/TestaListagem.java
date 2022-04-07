@@ -1,15 +1,15 @@
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public class TestaListagem {
 
 	public static void main(String[] args) throws SQLException {
 		Connection con = ConnectionFactory.recuperarConexao();
 
-		Statement st = con.createStatement();
-		st.execute("SELECT ID, NOME, DESCRICAO FROM PRODUTO");
+		PreparedStatement st = con.prepareStatement("SELECT ID, NOME, DESCRICAO FROM PRODUTO");
+		st.execute();
 		ResultSet rs = st.getResultSet();
 		
 		while(rs.next()) {
