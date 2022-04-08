@@ -5,7 +5,7 @@ import java.sql.SQLException;
 public class TesteRemocao {
 
 	public static void main(String[] args) throws SQLException {
-		Connection con = ConnectionFactory.recuperarConexao();
+		Connection con = new ConnectionFactory().recuperarConexao();
 
 		PreparedStatement st = con.prepareStatement("DELETE FROM PRODUTO WHERE ID > ?");
 		st.setInt(1, 4);

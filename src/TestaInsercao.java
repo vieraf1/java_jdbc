@@ -7,7 +7,7 @@ import java.sql.Statement;
 public class TestaInsercao {
 
 	public static void main(String[] args) throws SQLException {
-		try(Connection con = ConnectionFactory.recuperarConexao()){
+		try(Connection con = new ConnectionFactory().recuperarConexao()){
 			con.setAutoCommit(false);
 			try(PreparedStatement st = con.prepareStatement("INSERT INTO PRODUTO (NOME, DESCRICAO) VALUES (?, ?)" ,
 					Statement.RETURN_GENERATED_KEYS)) {
@@ -18,6 +18,7 @@ public class TestaInsercao {
 				
 				st.close();
 				ConnectionFactory.fecharConexao(con);
+				System.out.println("Insert Executando com sucesso!");
 			} catch(Exception e) {
 				e.printStackTrace();
 				System.out.println("Executando rollback");
@@ -32,12 +33,6 @@ public class TestaInsercao {
 			st.setString(2, descricao);
 			
 			st.execute();
-
-			while(rs.next()) {
-				Integer id = rs.getInt(1);
-				
-				System.out.println("Id do produto inserido na base é: " + id);
-			}
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
