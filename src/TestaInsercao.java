@@ -15,9 +15,7 @@ public class TestaInsercao {
 				adicionarValores(st, "Geladeira", "Geladeira Azul");
 				adicionarValores(st, "Televisão", "TV LG");	
 				con.commit();
-				
-				st.close();
-				ConnectionFactory.fecharConexao(con);
+
 				System.out.println("Insert Executando com sucesso!");
 			} catch(Exception e) {
 				e.printStackTrace();
