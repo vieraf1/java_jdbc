@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.Categoria;
 import model.Produto;
 
 public class ProdutoDAO {
@@ -43,6 +44,24 @@ public class ProdutoDAO {
 		List<Produto> lista = new ArrayList<>();
 		String sql = "SELECT ID, NOME, DESCRICAO FROM PRODUTO";
 		try(PreparedStatement st = connection.prepareStatement(sql)) {
+			st.execute();
+			ResultSet rs = st.getResultSet();
+			
+			while(rs.next()) {
+				Produto produto = new Produto(rs.getInt("ID"), rs.getString("NOME"), rs.getString("DESCRICAO"));
+				lista.add(produto);
+			}
+			
+			st.close();
+		}
+		return lista;
+	}
+
+	public List<Produto> listasPorCategoria(Categoria categoria) throws SQLException {
+		List<Produto> lista = new ArrayList<>();
+		String sql = "SELECT ID, NOME, DESCRICAO FROM PRODUTO WHERE CATEGORIA_ID = ?";
+		try(PreparedStatement st = connection.prepareStatement(sql)) {
+			st.setInt(1, categoria.getId());
 			st.execute();
 			ResultSet rs = st.getResultSet();
 			
