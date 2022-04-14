@@ -11,55 +11,54 @@ import model.Categoria;
 import model.Produto;
 
 public class CategoriaDAO {
-	
+
 	private Connection connection;
-	
+
 	public CategoriaDAO(Connection connection) {
 		this.connection = connection;
 	}
-	
+
 	public List<Categoria> listar() throws SQLException {
-		List<Categoria> lista = new ArrayList<>();
-		
+		List<Categoria> categorias = new ArrayList<>();
 		String sql = "SELECT ID, NOME FROM CATEGORIA";
-		try(PreparedStatement st = connection.prepareStatement(sql)) {
-			st.execute();
-			ResultSet rs = st.getResultSet();
-			
-			while(rs.next()) {
-				Categoria categoria = new Categoria(rs.getInt("ID"), rs.getString("NOME"));
-				lista.add(categoria);
-			}
-			
-			st.close();
-		}
-		return lista;
-	}
 
-	public List<Categoria> listarComProdutos() throws SQLException {
-		Categoria ultimo = null;
-		List<Categoria> lista = new ArrayList<>();
-		
-		String sql = "SELECT C.ID, C.NOME, P.ID, P.NOME, P.DESCRICAO "
-				+ "   FROM CATEGORIA C"
-				+ "   INNER JOIN PRODUTO P ON P.CATEGORIA_ID = C.ID";
-		try(PreparedStatement st = connection.prepareStatement(sql)) {
-			st.execute();
-			ResultSet rs = st.getResultSet();
-			
-			while(rs.next()) {
-				if(ultimo == null || !ultimo.getNome().equals(rs.getString(2))) {
-					Categoria categoria = new Categoria(rs.getInt(1), rs.getString(2));
-					ultimo = categoria;
-					lista.add(categoria);
+		try (PreparedStatement pstm = connection.prepareStatement(sql)) {
+			pstm.execute();
+
+			try (ResultSet rst = pstm.getResultSet()) {
+				while (rst.next()) {
+					Categoria categoria = new Categoria(rst.getInt(1), rst.getString(2));
+
+					categorias.add(categoria);
 				}
-				Produto produto = new Produto(rs.getInt(3), rs.getString(4), rs.getString(5));
-				ultimo.adicionar(produto);
 			}
-			
-			st.close();
 		}
-		return lista;
+		return categorias;
 	}
 
+	public List<Categoria> listarComProduto() throws SQLException {
+		Categoria ultima = null;
+		List<Categoria> categorias = new ArrayList<>();
+
+		String sql = "SELECT C.ID, C.NOME, P.ID, P.NOME, P.DESCRICAO " + "FROM CATEGORIA C "
+				+ "INNER JOIN PRODUTO P ON C.ID = P.CATEGORIA_ID";
+
+		try (PreparedStatement pstm = connection.prepareStatement(sql)) {
+			pstm.execute();
+
+			try (ResultSet rst = pstm.getResultSet()) {
+				while (rst.next()) {
+					if (ultima == null || !ultima.getNome().equals(rst.getString(2))) {
+						Categoria categoria = new Categoria(rst.getInt(1), rst.getString(2));
+
+						categorias.add(categoria);
+						ultima = categoria;
+					}
+					Produto produto = new Produto(rst.getInt(3), rst.getString(4), rst.getString(5));
+					ultima.adicionar(produto);
+				}
+			}
+			return categorias;
+		}
+	}
 }

@@ -14,64 +14,97 @@ import model.Produto;
 public class ProdutoDAO {
 
 	private Connection connection;
-	
+
 	public ProdutoDAO(Connection connection) {
 		this.connection = connection;
 	}
-	
-	public void salvar(Produto produto) {
+
+	public void salvar(Produto produto) throws SQLException {
 		String sql = "INSERT INTO PRODUTO (NOME, DESCRICAO) VALUES (?, ?)";
-		try(PreparedStatement st = connection.prepareStatement(sql,	Statement.RETURN_GENERATED_KEYS)) {
-			
-			st.setString(1, produto.getNome());
-			st.setString(2, produto.getDescricao());
-			
-			st.execute();
 
-			try(ResultSet rs = st.getGeneratedKeys()) {
-				while(rs.next()) {
-					produto.setId(rs.getInt(1));
-				}	
-			} catch(Exception e) {
-				e.printStackTrace();
+		try (PreparedStatement pstm = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+			pstm.setString(1, produto.getNome());
+			pstm.setString(2, produto.getDescricao());
+
+			pstm.execute();
+
+			try (ResultSet rst = pstm.getGeneratedKeys()) {
+				while (rst.next()) {
+					produto.setId(rst.getInt(1));
+				}
 			}
-		} catch(Exception e) {
-			e.printStackTrace();
 		}
 	}
-	
-	public List<Produto> buscar() throws SQLException {
-		List<Produto> lista = new ArrayList<>();
+
+	public void salvarComCategoria(Produto produto) throws SQLException {
+		String sql = "INSERT INTO PRODUTO (NOME, DESCRICAO, CATEGORIA_ID) VALUES (?, ?, ?)";
+
+		try (PreparedStatement pstm = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+			pstm.setString(1, produto.getNome());
+			pstm.setString(2, produto.getDescricao());
+			pstm.setInt(3, produto.getCategoriaId());
+
+			pstm.execute();
+
+			try (ResultSet rst = pstm.getGeneratedKeys()) {
+				while (rst.next()) {
+					produto.setId(rst.getInt(1));
+				}
+			}
+		}
+	}
+
+	public List<Produto> listar() throws SQLException {
+		List<Produto> produtos = new ArrayList<Produto>();
 		String sql = "SELECT ID, NOME, DESCRICAO FROM PRODUTO";
-		try(PreparedStatement st = connection.prepareStatement(sql)) {
-			st.execute();
-			ResultSet rs = st.getResultSet();
-			
-			while(rs.next()) {
-				Produto produto = new Produto(rs.getInt("ID"), rs.getString("NOME"), rs.getString("DESCRICAO"));
-				lista.add(produto);
-			}
-			
-			st.close();
+
+		try (PreparedStatement pstm = connection.prepareStatement(sql)) {
+			pstm.execute();
+
+			trasformarResultSetEmProduto(produtos, pstm);
 		}
-		return lista;
+		return produtos;
 	}
 
-	public List<Produto> listasPorCategoria(Categoria categoria) throws SQLException {
-		List<Produto> lista = new ArrayList<>();
+	public List<Produto> buscar(Categoria ct) throws SQLException {
+		List<Produto> produtos = new ArrayList<Produto>();
 		String sql = "SELECT ID, NOME, DESCRICAO FROM PRODUTO WHERE CATEGORIA_ID = ?";
-		try(PreparedStatement st = connection.prepareStatement(sql)) {
-			st.setInt(1, categoria.getId());
-			st.execute();
-			ResultSet rs = st.getResultSet();
-			
-			while(rs.next()) {
-				Produto produto = new Produto(rs.getInt("ID"), rs.getString("NOME"), rs.getString("DESCRICAO"));
-				lista.add(produto);
-			}
-			
-			st.close();
+
+		try (PreparedStatement pstm = connection.prepareStatement(sql)) {
+			pstm.setInt(1, ct.getId());
+			pstm.execute();
+
+			trasformarResultSetEmProduto(produtos, pstm);
 		}
-		return lista;
+		return produtos;
+	}
+
+	public void deletar(Integer id) throws SQLException {
+		try (PreparedStatement stm = connection.prepareStatement("DELETE FROM PRODUTO WHERE ID = ?")) {
+			stm.setInt(1, id);
+			stm.execute();
+		}
+	}
+
+	public void alterar(String nome, String descricao, Integer id) throws SQLException {
+		try (PreparedStatement stm = connection
+				.prepareStatement("UPDATE PRODUTO P SET P.NOME = ?, P.DESCRICAO = ? WHERE ID = ?")) {
+			stm.setString(1, nome);
+			stm.setString(2, descricao);
+			stm.setInt(3, id);
+			stm.execute();
+		}
+	}
+
+	private void trasformarResultSetEmProduto(List<Produto> produtos, PreparedStatement pstm) throws SQLException {
+		try (ResultSet rst = pstm.getResultSet()) {
+			while (rst.next()) {
+				Produto produto = new Produto(rst.getInt(1), rst.getString(2), rst.getString(3));
+
+				produtos.add(produto);
+			}
+		}
 	}
 }
