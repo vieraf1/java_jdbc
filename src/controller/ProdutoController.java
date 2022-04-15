@@ -1,29 +1,34 @@
 package controller;
 
-import java.util.ArrayList;
+import java.sql.Connection;
 import java.util.List;
 
+import dao.ProdutoDAO;
+import factory.ConnectionFactory;
 import model.Produto;
 
 public class ProdutoController {
+	
+	private ProdutoDAO produtoDAO;
+	
+	public ProdutoController() {
+		Connection con = new ConnectionFactory().recuperarConexao();
+		produtoDAO = new ProdutoDAO(con);
+	}
 
 	public void deletar(Integer id) {
-		System.out.println("Deletando produto");
+		produtoDAO.deletar(id);
 	}
 
 	public void salvar(Produto produto) {
-		System.out.println("Salvando produto");
+		produtoDAO.salvar(produto);
 	}
 
 	public List<Produto> listar() {
-		List<Produto> produtos = 
-				new ArrayList<Produto>();
-		produtos.add(new Produto("Nome do Produto de teste"
-				, "Descrição do produto de teste"));
-		return produtos;
+		return produtoDAO.listar();
 	}
 
 	public void alterar(String nome, String descricao, Integer id) {
-		System.out.println("Alterando produto");
+		produtoDAO.alterar(nome, descricao, id);
 	}
 }

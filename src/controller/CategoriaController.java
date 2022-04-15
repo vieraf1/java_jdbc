@@ -1,16 +1,22 @@
 package controller;
 
-import java.util.ArrayList;
+import java.sql.Connection;
 import java.util.List;
 
+import dao.CategoriaDAO;
+import factory.ConnectionFactory;
 import model.Categoria;
 
 public class CategoriaController {
+	
+	private CategoriaDAO categoriaDAO;
+	
+	public CategoriaController() {
+		Connection con = new ConnectionFactory().recuperarConexao();
+		categoriaDAO = new CategoriaDAO(con);
+	}
 
 	public List<Categoria> listar() {
-		List<Categoria> categorias = 
-				new ArrayList<Categoria>();
-		categorias.add(new Categoria(1, "Categoria de teste")); 
-		return categorias;
+		return categoriaDAO.listar();
 	}
 }
